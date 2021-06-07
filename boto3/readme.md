@@ -22,6 +22,35 @@ for content in response['Contents']:
 ```
 > Note: this client-level code is limited to listing at most 1000 objects. You would have to use a paginator, or implement your own loop, calling list_objects_v2() repeatedly with a continuation marker if there were more than 1000 objects.
 
+* default session - list buckets
+```
+import boto3 
+s3 = boto3.client('s3')
+
+def list_bucket_contents(bucket_name):
+   for object in s3.list_objects_v2(Bucket=bucket_name) :
+      print(object.key)
+
+list_bucket_contents('Mybucket') 
+```
+
+* list objects from a bucket in different regions,
+```
+import boto3 
+backup_s3 = my_west_session.client('s3',region_name = 'us-west-2')
+video_s3 = my_east_session.client('s3',region_name = 'us-east-1')
+
+# you must pass boto3.Session.client and the bucket name 
+def list_bucket_contents(s3session, bucket_name):
+   response = s3session.list_objects_v2(Bucket=bucket_name)
+   if 'Contents' in response:
+     for obj in response['Contents']:
+        print(obj['key'])
+
+list_bucket_contents(backup_s3, 'backupbucket')
+list_bucket_contents(video_s3 , 'videobucket') 
+```
+
 ## Resources
 
 
@@ -43,15 +72,44 @@ bucket = s3.Bucket('mybucket')
 for obj in bucket.objects.all():
     print(obj.key, obj.last_modified)
 ```
+Resources + Session
+```
+import boto3 
+my_west_session = boto3.Session(region_name = 'us-west-2')
+my_east_session = boto3.Session(region_name = 'us-east-1')
+backup_s3 = my_west_session.resource("s3")
+video_s3 = my_east_session.resource("s3")
+backup_bucket = backup_s3.Bucket('backupbucket') 
+video_bucket = video_s3.Bucket('videobucket')
 
+# just pass the instantiated bucket object
+def list_bucket_contents(bucket):
+   for object in bucket.objects.all():
+      print(object.key)
+
+list_bucket_contents(backup_bucket)
+list_bucket_contents(video_bucket)
+```
 ## Session:
+is where to initiate the connectivity to AWS services. E.g. following is default session that uses the default credential profile(e.g. ~/.aws/credentials, or assume your EC2 using IAM instance profile )
 
 * stores configuration information (primarily credentials and selected region)
 * allows you to create service clients and resources
 * boto3 creates a default session for you when needed
 
-# Reference / Quick Start
+```
+# custom resource session must use boto3.Session to do the override
+my_west_session = boto3.Session(region_name = 'us-west-2')
+my_east_session = boto3.Session(region_name = 'us-east-1')
+backup_s3 = my_west_session.resource('s3')
+video_s3 = my_east_session.resource('s3')
 
+# you have two choices of create custom client session. 
+backup_s3c = my_west_session.client('s3')
+video_s3c = boto3.client("s3", region_name = 'us-east-1')
+```
+# Reference / Quick Start
+* [AWS: introduction boto3 - Youtube](https://www.youtube.com/watch?v=Cb2czfCV4Dg)
 * [aws-modern-application-workshop](https://github.com/aws-samples/aws-modern-application-workshop/tree/python)
 
 * [boto3](https://github.com/boto/boto3)
@@ -61,3 +119,5 @@ for obj in bucket.objects.all():
 * [AWS SDK boto3](https://aws.amazon.com/sdk-for-python/)
 
 * [boto 3 components](https://stackoverflow.com/questions/42809096/difference-in-boto3-between-resource-client-and-session)
+
+* [AWS DEMO: Build a Modern Web Application](https://aws.amazon.com/getting-started/hands-on/build-modern-app-fargate-lambda-dynamodb-python/)
