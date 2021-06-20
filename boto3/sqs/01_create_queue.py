@@ -1,5 +1,7 @@
 import boto3
 
+## USING RESOURCE
+
 # # Get the service resource
 # sqs = boto3.resource('sqs')
 
@@ -10,12 +12,9 @@ import boto3
 # print(queue.url)
 # print(queue.attributes.get('DelaySeconds'))
 
+## USING CLIENT
 client = boto3.client('sqs')
 
-response = client.list_queues(
-    QueueNamePrefix='string',
-    # NextToken='string',
-    MaxResults=123
-)
+response = client.list_queues(QueueNamePrefix='string',MaxResults=123)
 
 print(response)

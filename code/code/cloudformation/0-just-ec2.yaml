@@ -1,0 +1,8 @@
+---
+Resources:
+  ansiblecontroller:
+    Type: AWS::EC2::Instance
+    Properties:
+      AvailabilityZone: us-east-2a
+      ImageId: ami-0d8d212151031f51c 
+      InstanceType: t2.micro

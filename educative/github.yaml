@@ -1,0 +1,4 @@
+source github_credentials.sh
+git add main.yml
+git commit -m "Add prod nested stack"
+git push

@@ -4,6 +4,7 @@ import boto3
 sqs = boto3.client('sqs')
 
 # List SQS queues
+sdf
 response = sqs.list_queues()
 
 print(response['QueueUrls'])
